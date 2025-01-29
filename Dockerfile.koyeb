@@ -1,0 +1,3 @@
+FROM dittofeed/docker-compose
+
+COPY . /app

@@ -1,3 +1,37 @@
-FROM dittofeed/docker-compose
+# Use Node.js as base image since Dittofeed is a Node.js application
+FROM node:18-alpine
 
-COPY . /app
+# Install necessary build dependencies
+RUN apk add --no-cache python3 make g++
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY packages/dashboard/package*.json ./packages/dashboard/
+COPY packages/api/package*.json ./packages/api/
+COPY packages/worker/package*.json ./packages/worker/
+
+# Copy source code
+COPY . .
+
+# Install dependencies
+RUN npm install
+
+# Build the applications
+RUN npm run build
+
+# Expose necessary ports
+EXPOSE 3000 3001
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV DATABASE_URL="postgresql://postgres:password@postgres:5432/dittofeed"
+ENV KAFKA_BROKERS="kafka:29092"
+ENV CLICKHOUSE_HOST="http://clickhouse-server:8123"
+ENV TEMPORAL_ADDRESS="temporal:7233"
+ENV API_HOST="0.0.0.0"
+
+# Start the services
+CMD ["npm", "run", "start"]

@@ -1,4 +1,4 @@
-# Use Node.js as base image since Dittofeed is a Node.js application
+# Use Node.js as base image
 FROM node:18-alpine
 
 # Install necessary build dependencies
@@ -16,8 +16,8 @@ COPY packages/worker/package*.json ./packages/worker/
 # Copy source code
 COPY . .
 
-# Install dependencies
-RUN npm install
+# Install dependencies with legacy peer deps flag to handle conflicts
+RUN npm install --legacy-peer-deps
 
 # Build the applications
 RUN npm run build
